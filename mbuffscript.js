@@ -2,6 +2,8 @@
 // @name         MangaBuffAuto
 // @namespace    http://tampermonkey.net/
 // @version      2024-10-23
+// @updateURL    https://raw.githubusercontent.com/RelicR/mbuftmprmk/refs/heads/master/mbuffscript.js
+// @downloadURL  https://raw.githubusercontent.com/RelicR/mbuftmprmk/refs/heads/master/mbuffscript.js
 // @description  try to take over the world!
 // @author       Relic_R
 // @match        *://mangabuff.ru/*/*/*/*
@@ -34,7 +36,7 @@
     'use strict';
 
     // Your code here...
-    // test
+    // Update test
     const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
     var footer, scrollBtn, fasterScrollBtn, nextCh;
     var candy, card, cardModal, pumpkin, heightDiff;
