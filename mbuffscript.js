@@ -34,6 +34,7 @@
     'use strict';
 
     // Your code here...
+    // test
     const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
     var footer, scrollBtn, fasterScrollBtn, nextCh;
     var candy, card, cardModal, pumpkin, heightDiff;
