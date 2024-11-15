@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MangaBuffAuto
 // @namespace    http://tampermonkey.net/
-// @version      2024-11-14
+// @version      2024-11-15
 // @updateURL    https://raw.githubusercontent.com/RelicR/mbuftmprmk/master/mbuffscript.js
 // @downloadURL  https://raw.githubusercontent.com/RelicR/mbuftmprmk/master/mbuffscript.js
 // @description  try to take over the world!
@@ -38,7 +38,7 @@
     var W = (typeof unsafeWindow === 'undefined') ? window : unsafeWindow;
     const curDate = (start=Date.now(),offset=0) => new Date(start-3600000-offset);
     // Notifis
-    if(W.location.href.startsWith("https://mangabuff.ru/notifications") && W.location.href.endsWith("?sort=all")){
+    if(W.location.href.startsWith("https://mangabuff.ru/notifications") && W.location.href.endsWith("sort=all")){
         var nots = document.getElementsByClassName("notifications__wrapper");
         var notsText, notsTime;
         var todaysCards = 0;
