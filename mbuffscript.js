@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MangaBuffAuto
 // @namespace    http://tampermonkey.net/
-// @version      2024-11-15
+// @version      2024-11-14
 // @updateURL    https://raw.githubusercontent.com/RelicR/mbuftmprmk/master/mbuffscript.js
 // @downloadURL  https://raw.githubusercontent.com/RelicR/mbuftmprmk/master/mbuffscript.js
 // @description  try to take over the world!
@@ -88,6 +88,10 @@
                     console.log("Stats reset");
                 }
                 break;
+            case "fullReset":
+                stats = {chapter: 0, card: 0, lastCard: null};
+                await GM.setValues({chapter: stats.chapter, card: stats.card, lastCard: stats.lastCard});
+                break;
             // case "farm":
             //     stats.chapter = 75;
             //     stats.card = 0;
@@ -143,6 +147,7 @@
     GM_registerMenuCommand("Фарм карт", setFarm);
     GM_registerMenuCommand("Только подбор", setSemi);
     GM_registerMenuCommand("Выключить", setOff);
+    GM_registerMenuCommand("Сброс статистики", updStats("fullReset"));
     //
     // Tasks
     async function startAutoScroll(){
@@ -163,6 +168,7 @@
     }
     async function goNext(){
         if(heightDiff <= 1300){
+            if (curDate().getDate() != curDate(stats.lastCard).getDate()) await updStats("reset");
             if (setup.full) await updStats("chapter");
             flags.next = false;
             return nextCh.click();
@@ -214,7 +220,7 @@
                     dayDiff = stats.lastCard != null ? curDate().getDate() - curDate(stats.lastCard).getDate() : 0;
                     console.log(`TIMEDIF ${timeDiff}, DAYDIF ${dayDiff}`);
                     if ((setup.full || setup.farm) && stats.card >= 10) {
-                        await updConfig(false, false, false, true);
+                        await updConfig(false, true, false, false);
                         console.log("Stopped by condition");
                     }
                     if ((gotCard || (timeDiff != null && timeDiff < 60)) && dayDiff == 0 && ((setup.full && stats.chapter > 75) || setup.farm) && stats.card < 10) {
