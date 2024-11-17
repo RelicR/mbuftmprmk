@@ -88,7 +88,7 @@
                     console.log("Stats reset");
                 }
                 break;
-            case "fullReset":
+            default:
                 stats = {chapter: 0, card: 0, lastCard: null};
                 await GM.setValues({chapter: stats.chapter, card: stats.card, lastCard: stats.lastCard});
                 break;
@@ -147,7 +147,7 @@
     GM_registerMenuCommand("Фарм карт", setFarm);
     GM_registerMenuCommand("Только подбор", setSemi);
     GM_registerMenuCommand("Выключить", setOff);
-    GM_registerMenuCommand("Сброс статистики", updStats("fullReset"));
+    GM_registerMenuCommand("Сброс статистики", updStats);
     //
     // Tasks
     async function startAutoScroll(){
