@@ -55,6 +55,7 @@
     const config = { attributes: true, childList: true, subtree: true };
     var footer, scrollBtn, fasterScrollBtn, nextCh;
     var card, cardModal;
+    var windHeight = W.innerHeight;
     // Event
     // var candy, pumpkin;
     // var events = { candy: false, pumpkin: false };
@@ -170,7 +171,7 @@
         return cardModal.click();
     }
     async function goNext(){
-        if(heightDiff <= 1300){
+        if(heightDiff <= windHeight){
             if (stats.lastCard != null && curDate().getDate() != curDate(stats.lastCard, -3600000).getDate()) await updStats("reset");
             await updStats("chapter");
             flags.next = false;
@@ -217,7 +218,7 @@
         const callback = async (mutationList, observer) => {
             for (const mutation of mutationList) {
                 heightDiff = document.body.offsetHeight - W.pageYOffset;
-                if (!flags.next && heightDiff <= 1300){
+                if (!flags.next && heightDiff <= windHeight){
                     pageDiff = totalPage - Number(curPage);
                     timeDiff = stats.lastCard != null ? (curDate().getTime() - stats.lastCard)/1000/60 : null;
                     dayDiff = stats.lastCard != null ? curDate().getDate() - curDate(stats.lastCard, -3600000).getDate() : 0;
