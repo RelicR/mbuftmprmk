@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MangaBuffAuto
 // @namespace    http://tampermonkey.net/
-// @version      2024-11-14
+// @version      2024-11-21
 // @updateURL    https://raw.githubusercontent.com/RelicR/mbuftmprmk/master/mbuffscript.js
 // @downloadURL  https://raw.githubusercontent.com/RelicR/mbuftmprmk/master/mbuffscript.js
 // @description  try to take over the world!
@@ -81,12 +81,16 @@
                 console.log("Updated card stats");
                 break;
             case "reset":
-                if (stats.lastCard && curDate().getDate() != curDate(stats.lastCard).getDate()) {
-                    stats.chapter = 0;
-                    stats.card = 0;
-                    await GM.setValues({chapter: stats.chapter, card: stats.card});
-                    console.log("Stats reset");
-                }
+                // if (stats.lastCard && curDate().getDate() != curDate(stats.lastCard, -3600000).getDate()) {
+                //     stats.chapter = 0;
+                //     stats.card = 0;
+                //     await GM.setValues({chapter: stats.chapter, card: stats.card});
+                //     console.log("Stats reset");
+                // }
+                stats = {card: 0, chapter: 0, lastCard: null}
+                await GM.setValues({card: stats.card, chapter: stats.chapter, lastCard: stats.lastCard});
+                if (gotCard) {await updStats("card");}
+                console.log("Stats reset");
                 break;
             default:
                 stats = {chapter: 0, card: 0, lastCard: null};
@@ -119,7 +123,6 @@
         console.log(stats);
         //document.body.innerHTML += `<div style="position:fixed;z-index: 10; border-radius:10px; bottom:20px;left:20px;padding:10px;background:#000;color:#fff;width: 300px;font-size: 14px;" id="autoStats"><span style="color:#87CEFA">Статистика</span><span id="close-autoStats" style="position:relative;top:0px;cursor:pointer;float:right;" onclick="document.getElementById('autoStats').remove()">✖</span><ul><li>Конфеты (с учётом тыкв): ${stats.candy}</li><li>Карты: ${stats.card}</li><li>Тыквы: ${stats.pumpkin}</li></ul></div>`;
         document.body.innerHTML += `<div style="position:fixed;z-index: 10; border-radius:10px; bottom:20px;left:20px;padding:10px;background:#000;color:#fff;width: 300px;font-size: 14px;" id="autoStats"><span style="color:#87CEFA">Статистика цикла</span><span id="close-autoStats" style="position:relative;top:0px;cursor:pointer;float:right;" onclick="document.getElementById('autoStats').remove()">✖</span><ul><li>Главы: ${stats.chapter}</li><li>Карты: ${stats.card}</li></ul></div>`;
-        await updStats("reset");
     }
     //
     // RMB menu
@@ -168,8 +171,8 @@
     }
     async function goNext(){
         if(heightDiff <= 1300){
-            if (curDate().getDate() != curDate(stats.lastCard).getDate()) await updStats("reset");
-            if (setup.full) await updStats("chapter");
+            if (stats.lastCard != null && curDate().getDate() != curDate(stats.lastCard, -3600000).getDate()) await updStats("reset");
+            await updStats("chapter");
             flags.next = false;
             return nextCh.click();
         }
@@ -209,7 +212,7 @@
             }
         });
         if (setup.full || setup.farm) {
-            startAutoScroll();
+            await setTimeout(startAutoScroll, 1500);
         }
         const callback = async (mutationList, observer) => {
             for (const mutation of mutationList) {
@@ -217,7 +220,7 @@
                 if (!flags.next && heightDiff <= 1300){
                     pageDiff = totalPage - Number(curPage);
                     timeDiff = stats.lastCard != null ? (curDate().getTime() - stats.lastCard)/1000/60 : null;
-                    dayDiff = stats.lastCard != null ? curDate().getDate() - curDate(stats.lastCard).getDate() : 0;
+                    dayDiff = stats.lastCard != null ? curDate().getDate() - curDate(stats.lastCard, -3600000).getDate() : 0;
                     console.log(`TIMEDIF ${timeDiff}, DAYDIF ${dayDiff}`);
                     if ((setup.full || setup.farm) && stats.card >= 10) {
                         await updConfig(false, true, false, false);
