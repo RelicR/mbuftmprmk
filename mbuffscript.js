@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MangaBuffAuto
 // @namespace    http://tampermonkey.net/
-// @version      2024-11-21
+// @version      2024-11-22
 // @updateURL    https://raw.githubusercontent.com/RelicR/mbuftmprmk/master/mbuffscript.js
 // @downloadURL  https://raw.githubusercontent.com/RelicR/mbuftmprmk/master/mbuffscript.js
 // @description  try to take over the world!
@@ -45,7 +45,7 @@
         for (var i = 0; i < nots.length; i++){
             notsText = nots[i].childNodes[1].innerText;
             notsTime = nots[i].childNodes[3].childNodes[1].innerText;
-            if (notsText.startsWith("Вы получили") && notsTime.startsWith(curDate().getDate().toString() + " ")){todaysCards += 1;}
+            if (notsText.startsWith("Вы получили новую карту") && notsTime.startsWith(curDate().getDate().toString() + " ")){todaysCards += 1;}
         }
         document.getElementsByClassName("secondary-title")[0].innerText += ` | Найдено ${todaysCards}/10 карт за сегодня`;
         return false;
