@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MangaBuffAuto
 // @namespace    http://tampermonkey.net/
-// @version      2024-12-01
+// @version      2024-12-26
 // @updateURL    https://raw.githubusercontent.com/RelicR/mbuftmprmk/master/mbuffscript.js
 // @downloadURL  https://raw.githubusercontent.com/RelicR/mbuftmprmk/master/mbuffscript.js
 // @description  try to take over the world!
@@ -57,8 +57,9 @@
     var card, cardModal;
     var windHeight = W.innerHeight;
     // Event
-    // var candy, pumpkin;
-    // var events = { candy: false, pumpkin: false };
+    var candy, pumpkin;
+    var events = { candy: false, pumpkin: false };
+
     var heightDiff, curPage, totalPage, pageDiff, timeDiff, gap, dayDiff;
     var stats, curTime;
     var gotCard = false;
@@ -88,13 +89,15 @@
                 //     await GM.setValues({chapter: stats.chapter, card: stats.card});
                 //     console.log("Stats reset");
                 // }
-                stats = {card: 0, chapter: 0, lastCard: null}
-                await GM.setValues({card: stats.card, chapter: stats.chapter, lastCard: stats.lastCard});
+                // stats = {chapter: 0, card: 0, lastCard: null};
+                // Event
+                stats = {chapter: 0, card: 0, lastCard: null, candy: 0, pumpkin: 0};
+                await GM.setValues({card: stats.card, chapter: stats.chapter, lastCard: stats.lastCard, candy: stats.candy, pumpkin: stats.pumpkin});
                 if (gotCard) {await updStats("card");}
                 console.log("Stats reset");
                 break;
             default:
-                stats = {chapter: 0, card: 0, lastCard: null};
+                stats = {chapter: 0, card: 0, lastCard: null, candy: 0, pumpkin: 0};
                 await GM.setValues({chapter: stats.chapter, card: stats.card, lastCard: stats.lastCard});
                 break;
             // case "farm":
@@ -105,25 +108,26 @@
             //     break;
             //
             // Event
-            // case "candy":
-            //     stats.candy += 1;
-            //     GM.setValue({candy: stats.candy});
-            //     break;
-            // case "pumpkin":
-            //     stats.candy += 3;
-            //     stats.pumpkin += 1;
-            //     GM.setValues({candy: stats.candy, pumpkin: stats.pumpkin});
-            //     break;
+            case "candy":
+                stats.candy += 1;
+                await GM.setValues({candy: stats.candy});
+                console.log("Updated card stats");
+                break;
+            case "pumpkin":
+                stats.candy += 3;
+                stats.pumpkin += 1;
+                await GM.setValues({candy: stats.candy, pumpkin: stats.pumpkin});
+                break;
         }
     }
     async function getStats(){
-        return GM.getValues({chapter: 0, card: 0, lastCard: null});
+        return GM.getValues({chapter: 0, card: 0, lastCard: null, candy: 0, pumpkin: 0});
     }
     async function showStats(){
         console.log("Stats are ");
         console.log(stats);
         //document.body.innerHTML += `<div style="position:fixed;z-index: 10; border-radius:10px; bottom:20px;left:20px;padding:10px;background:#000;color:#fff;width: 300px;font-size: 14px;" id="autoStats"><span style="color:#87CEFA">Статистика</span><span id="close-autoStats" style="position:relative;top:0px;cursor:pointer;float:right;" onclick="document.getElementById('autoStats').remove()">✖</span><ul><li>Конфеты (с учётом тыкв): ${stats.candy}</li><li>Карты: ${stats.card}</li><li>Тыквы: ${stats.pumpkin}</li></ul></div>`;
-        document.body.innerHTML += `<div style="position:fixed;z-index: 10; border-radius:10px; bottom:20px;left:20px;padding:10px;background:#000;color:#fff;width: 300px;font-size: 14px;" id="autoStats"><span style="color:#87CEFA">Статистика цикла</span><span id="close-autoStats" style="position:relative;top:0px;cursor:pointer;float:right;" onclick="document.getElementById('autoStats').remove()">✖</span><ul><li>Главы: ${stats.chapter}</li><li>Карты: ${stats.card}</li></ul></div>`;
+        document.body.innerHTML += `<div style="position:fixed;z-index: 10; border-radius:10px; bottom:20px;left:20px;padding:10px;background:#000;color:#fff;width: 300px;font-size: 14px;" id="autoStats"><span style="color:#87CEFA">Статистика цикла</span><span id="close-autoStats" style="position:relative;top:0px;cursor:pointer;float:right;" onclick="document.getElementById('autoStats').remove()">✖</span><ul><li>Главы: ${stats.chapter}</li><li>Карты: ${stats.card}</li><li>Конфеты (с учётом тыкв): ${stats.candy}</li></ul></div>`;
     }
     //
     // RMB menu
@@ -181,20 +185,21 @@
     }
     //
     // Event
-    // async function getPumpkin(){
-    //     flags[4] = false;
-    //     for (var i = 0; i < 11; i++) {pumpkin.click();}
-    //     await updStats("pumpkin");
-    //     return true;
-    // }
-    // async function getCandy(){
-    //     flags[0] = false;
-    //     await updStats("candy");
-    //     return candy.click();
-    // }
+    async function getPumpkin(){
+        flags[4] = false;
+        for (var i = 0; i < 11; i++) {pumpkin.click();}
+        await updStats("pumpkin");
+        return true;
+    }
+    async function getCandy(){
+        flags[0] = false;
+        await updStats("candy");
+        return candy.click();
+    }
     //
     // Prep
     stats = await getStats();
+    if (stats.lastCard != null && curDate().getDate() != curDate(stats.lastCard, -3600000).getDate()) await updStats("reset");
     console.log("Stats are ");
     console.log(stats);
     //
@@ -218,7 +223,7 @@
         const callback = async (mutationList, observer) => {
             for (const mutation of mutationList) {
                 heightDiff = document.body.offsetHeight - W.pageYOffset;
-                if (!flags.next && heightDiff <= windHeight){
+                if (!flags.next && heightDiff <= windHeight+50){
                     pageDiff = totalPage - Number(curPage);
                     timeDiff = stats.lastCard != null ? (curDate().getTime() - stats.lastCard)/1000/60 : null;
                     dayDiff = stats.lastCard != null ? curDate().getDate() - curDate(stats.lastCard, -3600000).getDate() : 0;
@@ -249,20 +254,20 @@
                     }
                     //
                     // Event
-                    // candy = document.getElementsByClassName("helloween-gift-candy")[0];
-                    // pumpkin = document.getElementsByClassName("helloween-gift-pumpkin")[0];
-                    // if (!events.candy && candy != undefined && !candy.classList.contains("helloween-gift-candy--collected")) {
-                    //     GM_log("Candy found");
-                    //     GM_notification({ text: "Candy found", timeout: 1500 });
-                    //     setTimeout(getCandy, 2000);
-                    //     events.candy = true;
-                    // }
-                    // if (!events.pumpkin && pumpkin != undefined) {
-                    //     GM_log("Pumpkin found");
-                    //     GM_notification({ text: "Pumpkin found", timeout: 1500 });
-                    //     setTimeout(getPumpkin, 250);
-                    //     events.pumpkin = true;
-                    // }
+                    candy = document.getElementsByClassName("new-year-gift-ball")[0];
+                    pumpkin = document.getElementsByClassName("new-year-gift-bag")[0];
+                    if (!events.candy && candy != undefined && !candy.classList.contains("helloween-gift-candy--collected")) {
+                        GM_log("Candy found");
+                        GM_notification({ text: "Candy found", timeout: 1500 });
+                        setTimeout(getCandy, 1500);
+                        events.candy = true;
+                    }
+                    if (!events.pumpkin && pumpkin != undefined) {
+                        GM_log("Pumpkin found");
+                        GM_notification({ text: "Pumpkin found", timeout: 1500 });
+                        setTimeout(getPumpkin, 250);
+                        events.pumpkin = true;
+                    }
                 }
                 // if (mutation.type === "attributes" && setup.full)
                 // {
