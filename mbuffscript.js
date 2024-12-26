@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MangaBuffAuto
 // @namespace    http://tampermonkey.net/
-// @version      2024-12-26
+// @version      2024-12-26-v2
 // @updateURL    https://raw.githubusercontent.com/RelicR/mbuftmprmk/master/mbuffscript.js
 // @downloadURL  https://raw.githubusercontent.com/RelicR/mbuftmprmk/master/mbuffscript.js
 // @description  try to take over the world!
@@ -58,12 +58,13 @@
     var windHeight = W.innerHeight;
     // Event
     var candy, pumpkin;
+    var gotCandy = false;
     var events = { candy: false, pumpkin: false };
 
     var heightDiff, curPage, totalPage, pageDiff, timeDiff, gap, dayDiff;
     var stats, curTime;
     var gotCard = false;
-    var setup = await GM.getValues({full: false, semi: true, farm: false, off: false});
+    var setup = await GM.getValues({full: false, semi: true, farm: false, off: false, event: false});
     var flags = { card: false, cardPop:false, scroll: false, next: false };
     GM_log("Script started");
     GM_log(setup);
@@ -131,13 +132,14 @@
     }
     //
     // RMB menu
-    async function updConfig(fullauto, semiauto, farm, off){
-        setup = fullauto ? {full: true, semi: false, farm: false, off: false} : setup;
-        setup = semiauto ? {full: false, semi: true, farm: false, off: false} : setup;
-        setup = farm ? {full: false, semi: false, farm: true, off: false} : setup;
-        setup = off ? {full: false, semi: false, farm: false, off: true} : setup;
+    async function updConfig(fullauto, semiauto, farm, off, event){
+        setup = fullauto ? {full: true, semi: false, farm: false, off: false, event: false} : setup;
+        setup = semiauto ? {full: false, semi: true, farm: false, off: false, event: false} : setup;
+        setup = farm ? {full: false, semi: false, farm: true, off: false, event: false} : setup;
+        setup = off ? {full: false, semi: false, farm: false, off: true, event: false} : setup;
+        setup = event ? {full: false, semi: false, farm: false, off: false, event: true} : setup;
         console.log(setup);
-        await GM.setValues({full: setup.full, semi: setup.semi, farm: setup.farm, off: setup.off});
+        await GM.setValues({full: setup.full, semi: setup.semi, farm: setup.farm, off: setup.off, event: setup.event});
         GM_log("Config updated to ");
         GM_log(setup);
         if ((!fullauto && !farm) && flags.scroll && scrollBtn.classList.contains("icon-stop")) {
@@ -147,14 +149,16 @@
         }
         if ((setup.full || setup.farm) && !scrollBtn.classList.contains("icon-stop")) {startAutoScroll();}
     }
-    function setFull() {updConfig(true, false, false, false);}
-    function setSemi() {updConfig(false, true, false, false);}
-    function setFarm() {updConfig(false, false, true, false);}
-    function setOff() {updConfig(false, false, false, true);}
+    function setFull() {updConfig(true, false, false, false, false);}
+    function setSemi() {updConfig(false, true, false, false, false);}
+    function setFarm() {updConfig(false, false, true, false, false);}
+    function setOff() {updConfig(false, false, false, true, false);}
+    function setEvent() {updConfig(false, false, false, false, true);}
     GM_registerMenuCommand("Полный автомат", setFull);
     GM_registerMenuCommand("Фарм карт", setFarm);
     GM_registerMenuCommand("Только подбор", setSemi);
     GM_registerMenuCommand("Выключить", setOff);
+    GM_registerMenuCommand("Фарм ивент", setEvent);
     GM_registerMenuCommand("Сброс статистики", updStats);
     //
     // Tasks
@@ -186,14 +190,15 @@
     //
     // Event
     async function getPumpkin(){
-        flags[4] = false;
+        events.pumpkin = false;
         for (var i = 0; i < 11; i++) {pumpkin.click();}
         await updStats("pumpkin");
         return true;
     }
     async function getCandy(){
-        flags[0] = false;
+        events.candy = false;
         await updStats("candy");
+        gotCandy = true;
         return candy.click();
     }
     //
@@ -203,7 +208,7 @@
     console.log("Stats are ");
     console.log(stats);
     //
-    if(setup.full || setup.farm || setup.semi){
+    if(!setup.off){
         footer = document.getElementsByClassName("reader__footer")[0];
         scrollBtn = document.getElementsByClassName("icon-play")[0];
         fasterScrollBtn = document.getElementById("fasterBtn");
@@ -217,7 +222,7 @@
                 }
             }
         });
-        if (setup.full || setup.farm) {
+        if (setup.full || setup.farm || setup.event) {
             await setTimeout(startAutoScroll, 1500);
         }
         const callback = async (mutationList, observer) => {
@@ -238,6 +243,10 @@
                         console.log(timeDiff);
                         await sleep(gap).then(() => setTimeout(goNext, 1000));
                     }
+                    if (setup.event && gotCandy) {
+                        flags.next = true;
+                        await sleep(600000).then(() => setTimeout(goNext, 1000));
+                    }
                     else {
                         flags.next = true;
                         await setTimeout(goNext, 3000)};
@@ -256,7 +265,7 @@
                     // Event
                     candy = document.getElementsByClassName("new-year-gift-ball")[0];
                     pumpkin = document.getElementsByClassName("new-year-gift-bag")[0];
-                    if (!events.candy && candy != undefined && !candy.classList.contains("helloween-gift-candy--collected")) {
+                    if (!events.candy && candy != undefined && !candy.classList.contains("new-year-gift-ball--collected")) {
                         GM_log("Candy found");
                         GM_notification({ text: "Candy found", timeout: 1500 });
                         setTimeout(getCandy, 1500);
