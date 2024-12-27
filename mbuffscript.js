@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MangaBuffAuto
 // @namespace    http://tampermonkey.net/
-// @version      2024-12-27
+// @version      2024-12-27-v2
 // @updateURL    https://raw.githubusercontent.com/RelicR/mbuftmprmk/master/mbuffscript.js
 // @downloadURL  https://raw.githubusercontent.com/RelicR/mbuftmprmk/master/mbuffscript.js
 // @description  try to take over the world!
@@ -238,21 +238,23 @@
                         await updConfig(false, true, false, false, false);
                         console.log("Stopped by condition");
                     }
-                    if ((gotCard || (timeDiff != null && timeDiff < 60)) && dayDiff == 0 && ((setup.full && stats.chapter > 75) || setup.farm) && stats.card < 10) {
+                    else if ((gotCard || (timeDiff != null && timeDiff < 60)) && dayDiff == 0 && ((setup.full && stats.chapter > 75) || setup.farm) && stats.card < 10) {
                         gap = gotCard ? 3600000 : (60-timeDiff)*60*1000;
                         flags.next = true;
                         console.log(timeDiff);
-                        if (gap > 600000 && !gotCandy) {
+                        if (gap > 600000 && gotCandy) {
                             console.log("Waiting for candy");
                             await sleep(600000).then(() => setTimeout(goNext, 1000));
                         }
-                        else {
+                        else if (gap > 600000 && !gotCandy) {
                             await setTimeout(goNext, 1000);
                         }
-                        console.log("Waiting for card");
-                        await sleep(gap).then(() => setTimeout(goNext, 1000));
+                        else {
+                            console.log("Waiting for card");
+                            await sleep(gap).then(() => setTimeout(goNext, 1000));
+                        }
                     }
-                    if (setup.event && gotCandy) {
+                    else if (setup.event && gotCandy) {
                         flags.next = true;
                         await sleep(600000).then(() => setTimeout(goNext, 1000));
                     }
