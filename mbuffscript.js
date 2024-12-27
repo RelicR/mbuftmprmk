@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MangaBuffAuto
 // @namespace    http://tampermonkey.net/
-// @version      2024-12-26-v2
+// @version      2024-12-27
 // @updateURL    https://raw.githubusercontent.com/RelicR/mbuftmprmk/master/mbuffscript.js
 // @downloadURL  https://raw.githubusercontent.com/RelicR/mbuftmprmk/master/mbuffscript.js
 // @description  try to take over the world!
@@ -99,7 +99,7 @@
                 break;
             default:
                 stats = {chapter: 0, card: 0, lastCard: null, candy: 0, pumpkin: 0};
-                await GM.setValues({chapter: stats.chapter, card: stats.card, lastCard: stats.lastCard});
+                await GM.setValues({chapter: stats.chapter, card: stats.card, lastCard: stats.lastCard, candy: stats.candy, pumpkin: stats.pumpkin});
                 break;
             // case "farm":
             //     stats.chapter = 75;
@@ -112,12 +112,13 @@
             case "candy":
                 stats.candy += 1;
                 await GM.setValues({candy: stats.candy});
-                console.log("Updated card stats");
+                console.log("Updated candy stats");
                 break;
             case "pumpkin":
                 stats.candy += 3;
                 stats.pumpkin += 1;
                 await GM.setValues({candy: stats.candy, pumpkin: stats.pumpkin});
+                console.log("Updated pumpkin&candy stats");
                 break;
         }
     }
@@ -234,13 +235,21 @@
                     dayDiff = stats.lastCard != null ? curDate().getDate() - curDate(stats.lastCard, -3600000).getDate() : 0;
                     console.log(`TIMEDIF ${timeDiff}, DAYDIF ${dayDiff}`);
                     if ((setup.full || setup.farm) && stats.card >= 10) {
-                        await updConfig(false, true, false, false);
+                        await updConfig(false, true, false, false, false);
                         console.log("Stopped by condition");
                     }
                     if ((gotCard || (timeDiff != null && timeDiff < 60)) && dayDiff == 0 && ((setup.full && stats.chapter > 75) || setup.farm) && stats.card < 10) {
                         gap = gotCard ? 3600000 : (60-timeDiff)*60*1000;
                         flags.next = true;
                         console.log(timeDiff);
+                        if (gap > 600000 && !gotCandy) {
+                            console.log("Waiting for candy");
+                            await sleep(600000).then(() => setTimeout(goNext, 1000));
+                        }
+                        else {
+                            await setTimeout(goNext, 1000);
+                        }
+                        console.log("Waiting for card");
                         await sleep(gap).then(() => setTimeout(goNext, 1000));
                     }
                     if (setup.event && gotCandy) {
@@ -256,7 +265,7 @@
                     card = document.getElementsByClassName("card-notification")[0];
                     if (!flags.card && card != undefined && card.style.display != "none") {
                         GM_log("Card found");
-                        GM_notification({ text: "Card found", timeout: 1500 });
+                        GM_notification({ text: "Card 🃏 found", timeout: 1500 });
                         await setTimeout(getCard, 1700);
                         await setTimeout(doneCard, 2500);
                         flags.card = true;
@@ -267,13 +276,13 @@
                     pumpkin = document.getElementsByClassName("new-year-gift-bag")[0];
                     if (!events.candy && candy != undefined && !candy.classList.contains("new-year-gift-ball--collected")) {
                         GM_log("Candy found");
-                        GM_notification({ text: "Candy found", timeout: 1500 });
+                        GM_notification({ text: "Candy 🍬 found", timeout: 1500 });
                         setTimeout(getCandy, 1500);
                         events.candy = true;
                     }
                     if (!events.pumpkin && pumpkin != undefined) {
                         GM_log("Pumpkin found");
-                        GM_notification({ text: "Pumpkin found", timeout: 1500 });
+                        GM_notification({ text: "Pumpkin 💰 found", timeout: 1500 });
                         setTimeout(getPumpkin, 250);
                         events.pumpkin = true;
                     }
