@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MangaBuffAuto
 // @namespace    http://tampermonkey.net/
-// @version      2024-12-27-v2
+// @version      2024-12-27-v3
 // @updateURL    https://raw.githubusercontent.com/RelicR/mbuftmprmk/master/mbuffscript.js
 // @downloadURL  https://raw.githubusercontent.com/RelicR/mbuftmprmk/master/mbuffscript.js
 // @description  try to take over the world!
@@ -57,7 +57,7 @@
     var card, cardModal;
     var windHeight = W.innerHeight;
     // Event
-    var candy, pumpkin;
+    var candy, pumpkin, candyDiff, candyGap;
     var gotCandy = false;
     var events = { candy: false, pumpkin: false };
 
@@ -92,14 +92,14 @@
                 // }
                 // stats = {chapter: 0, card: 0, lastCard: null};
                 // Event
-                stats = {chapter: 0, card: 0, lastCard: null, candy: 0, pumpkin: 0};
-                await GM.setValues({card: stats.card, chapter: stats.chapter, lastCard: stats.lastCard, candy: stats.candy, pumpkin: stats.pumpkin});
+                stats = {chapter: 0, card: 0, lastCard: null, candy: 0, pumpkin: 0, lastCandy: null};
+                await GM.setValues({card: stats.card, chapter: stats.chapter, lastCard: stats.lastCard, candy: stats.candy, pumpkin: stats.pumpkin, lastCandy: stats.lastCandy});
                 if (gotCard) {await updStats("card");}
                 console.log("Stats reset");
                 break;
             default:
-                stats = {chapter: 0, card: 0, lastCard: null, candy: 0, pumpkin: 0};
-                await GM.setValues({chapter: stats.chapter, card: stats.card, lastCard: stats.lastCard, candy: stats.candy, pumpkin: stats.pumpkin});
+                stats = {chapter: 0, card: 0, lastCard: null, candy: 0, pumpkin: 0, lastCandy: null};
+                await GM.setValues({chapter: stats.chapter, card: stats.card, lastCard: stats.lastCard, candy: stats.candy, pumpkin: stats.pumpkin, lastCandy: stats.lastCandy});
                 break;
             // case "farm":
             //     stats.chapter = 75;
@@ -111,7 +111,8 @@
             // Event
             case "candy":
                 stats.candy += 1;
-                await GM.setValues({candy: stats.candy});
+                stats.lastCandy = curDate().getTime();
+                await GM.setValues({candy: stats.candy, lastCandy: stats.lastCandy});
                 console.log("Updated candy stats");
                 break;
             case "pumpkin":
@@ -123,7 +124,7 @@
         }
     }
     async function getStats(){
-        return GM.getValues({chapter: 0, card: 0, lastCard: null, candy: 0, pumpkin: 0});
+        return GM.getValues({chapter: 0, card: 0, lastCard: null, candy: 0, pumpkin: 0, lastCandy: null});
     }
     async function showStats(){
         console.log("Stats are ");
@@ -233,6 +234,7 @@
                     pageDiff = totalPage - Number(curPage);
                     timeDiff = stats.lastCard != null ? (curDate().getTime() - stats.lastCard)/1000/60 : null;
                     dayDiff = stats.lastCard != null ? curDate().getDate() - curDate(stats.lastCard, -3600000).getDate() : 0;
+                    candyDiff = stats.lastCandy != null ? (curDate().getTime() - stats.lastCandy)/1000/60 : null;
                     console.log(`TIMEDIF ${timeDiff}, DAYDIF ${dayDiff}`);
                     if ((setup.full || setup.farm) && stats.card >= 10) {
                         await updConfig(false, true, false, false, false);
@@ -240,14 +242,13 @@
                     }
                     else if ((gotCard || (timeDiff != null && timeDiff < 60)) && dayDiff == 0 && ((setup.full && stats.chapter > 75) || setup.farm) && stats.card < 10) {
                         gap = gotCard ? 3600000 : (60-timeDiff)*60*1000;
+                        candyGap = gotCandy ? 600000 : (10-candyDiff)*60*1000;
+                        console.log("Candy in " + candyGap);
                         flags.next = true;
                         console.log(timeDiff);
-                        if (gap > 600000 && gotCandy) {
+                        if (gap > candyGap) {
                             console.log("Waiting for candy");
-                            await sleep(600000).then(() => setTimeout(goNext, 1000));
-                        }
-                        else if (gap > 600000 && !gotCandy) {
-                            await setTimeout(goNext, 1000);
+                            await sleep(candyGap).then(() => setTimeout(goNext, 1000));
                         }
                         else {
                             console.log("Waiting for card");
