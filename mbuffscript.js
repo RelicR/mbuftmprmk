@@ -276,7 +276,7 @@
                     //
                     // Event
                     candy = document.getElementsByClassName("new-year-gift-ball")[0];
-                    pumpkin = document.getElementsByClassName("new-year-gift-bag")[0];
+                    pumpkin = document.getElementsByClassName("new-year-bag")[0];
                     if (!events.candy && candy != undefined && !candy.classList.contains("new-year-gift-ball--collected")) {
                         GM_log("Candy found");
                         GM_notification({ text: "Candy 🍬 found", timeout: 1500 });
