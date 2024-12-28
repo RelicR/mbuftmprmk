@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MangaBuffAuto
 // @namespace    http://tampermonkey.net/
-// @version      2024-12-28
+// @version      2024-12-28-v2
 // @updateURL    https://raw.githubusercontent.com/RelicR/mbuftmprmk/master/mbuffscript.js
 // @downloadURL  https://raw.githubusercontent.com/RelicR/mbuftmprmk/master/mbuffscript.js
 // @description  try to take over the world!
@@ -172,6 +172,7 @@
     }
     async function getCard(){
         flags.card = false;
+        if (stats.lastCard != null && curDate().getDate() != curDate(stats.lastCard, -3600000).getDate()) await updStats("reset");
         await updStats("card");
         gotCard = true;
         return card.click();
@@ -189,19 +190,20 @@
             return nextCh.click();
         }
         else return false;
+        return false;
     }
     //
     // Event
     async function getPumpkin(){
+        events.pumpkin = false;
         for (var i = 0; i < 11; i++) {pumpkin.click();}
         await updStats("pumpkin");
-        events.pumpkin = false;
         return true;
     }
     async function getCandy(){
+        events.candy = false;
         await updStats("candy");
         gotCandy = true;
-        events.candy = false;
         return candy.click();
     }
     //
@@ -236,6 +238,7 @@
                     timeDiff = stats.lastCard != null ? (curDate().getTime() - stats.lastCard)/1000/60 : null;
                     dayDiff = stats.lastCard != null ? curDate().getDate() - curDate(stats.lastCard, -3600000).getDate() : 0;
                     candyDiff = stats.lastCandy != null ? (curDate().getTime() - stats.lastCandy)/1000/60 : null;
+                    candyGap = gotCandy ? 600000 : (10-candyDiff)*60*1000;
                     console.log(`TIMEDIF ${timeDiff}, DAYDIF ${dayDiff}`);
                     if ((setup.full || setup.farm) && stats.card >= 10) {
                         await updConfig(false, true, false, false, false);
@@ -243,7 +246,6 @@
                     }
                     else if ((gotCard || (timeDiff != null && timeDiff < 60)) && dayDiff == 0 && ((setup.full && stats.chapter > 75) || setup.farm) && stats.card < 10) {
                         gap = gotCard ? 3600000 : (60-timeDiff)*60*1000;
-                        candyGap = gotCandy ? 600000 : (10-candyDiff)*60*1000;
                         console.log("Candy in " + candyGap);
                         flags.next = true;
                         console.log(timeDiff);
@@ -256,9 +258,11 @@
                             await sleep(gap).then(() => setTimeout(goNext, 1000));
                         }
                     }
-                    else if (setup.event && gotCandy) {
+                    else if (setup.event) {
                         flags.next = true;
-                        await sleep(600000).then(() => setTimeout(goNext, 1000));
+                        console.log("Waiting for candy");
+                        console.log(candyGap);
+                        await sleep(candyGap).then(() => setTimeout(goNext, 1000));
                     }
                     else {
                         flags.next = true;
@@ -282,13 +286,14 @@
                         GM_log("Candy found");
                         events.candy = true;
                         GM_notification({ text: "Candy 🍬 found", timeout: 1500 });
-                        setTimeout(getCandy, 1500);
+                        await setTimeout(getCandy, 1500);
                     }
                     if (!events.pumpkin && pumpkin != undefined) {
                         GM_log("Pumpkin found");
                         events.pumpkin = true;
+                        console.log(document.getElementsByClassName("new-year-bag"));
                         GM_notification({ text: "Pumpkin 💰 found", timeout: 1500 });
-                        setTimeout(getPumpkin, 250);
+                        await setTimeout(getPumpkin, 250);
                     }
                 }
                 // if (mutation.type === "attributes" && setup.full)
