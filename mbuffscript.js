@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MangaBuffAuto
 // @namespace    http://tampermonkey.net/
-// @version      2024-12-27-v3
+// @version      2024-12-28
 // @updateURL    https://raw.githubusercontent.com/RelicR/mbuftmprmk/master/mbuffscript.js
 // @downloadURL  https://raw.githubusercontent.com/RelicR/mbuftmprmk/master/mbuffscript.js
 // @description  try to take over the world!
@@ -118,7 +118,8 @@
             case "pumpkin":
                 stats.candy += 3;
                 stats.pumpkin += 1;
-                await GM.setValues({candy: stats.candy, pumpkin: stats.pumpkin});
+                stats.lastCandy = curDate().getTime();
+                await GM.setValues({candy: stats.candy, pumpkin: stats.pumpkin, lastCandy: stats.lastCandy});
                 console.log("Updated pumpkin&candy stats");
                 break;
         }
@@ -192,15 +193,15 @@
     //
     // Event
     async function getPumpkin(){
-        events.pumpkin = false;
         for (var i = 0; i < 11; i++) {pumpkin.click();}
         await updStats("pumpkin");
+        events.pumpkin = false;
         return true;
     }
     async function getCandy(){
-        events.candy = false;
         await updStats("candy");
         gotCandy = true;
+        events.candy = false;
         return candy.click();
     }
     //
@@ -269,9 +270,9 @@
                     if (!flags.card && card != undefined && card.style.display != "none") {
                         GM_log("Card found");
                         GM_notification({ text: "Card 🃏 found", timeout: 1500 });
+                        flags.card = true;
                         await setTimeout(getCard, 1700);
                         await setTimeout(doneCard, 2500);
-                        flags.card = true;
                     }
                     //
                     // Event
@@ -279,15 +280,15 @@
                     pumpkin = document.getElementsByClassName("new-year-bag")[0];
                     if (!events.candy && candy != undefined && !candy.classList.contains("new-year-gift-ball--collected")) {
                         GM_log("Candy found");
+                        events.candy = true;
                         GM_notification({ text: "Candy 🍬 found", timeout: 1500 });
                         setTimeout(getCandy, 1500);
-                        events.candy = true;
                     }
                     if (!events.pumpkin && pumpkin != undefined) {
                         GM_log("Pumpkin found");
+                        events.pumpkin = true;
                         GM_notification({ text: "Pumpkin 💰 found", timeout: 1500 });
                         setTimeout(getPumpkin, 250);
-                        events.pumpkin = true;
                     }
                 }
                 // if (mutation.type === "attributes" && setup.full)
