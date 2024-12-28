@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MangaBuffAuto
 // @namespace    http://tampermonkey.net/
-// @version      2024-12-28-v2
+// @version      2024-12-28-v3
 // @updateURL    https://raw.githubusercontent.com/RelicR/mbuftmprmk/master/mbuffscript.js
 // @downloadURL  https://raw.githubusercontent.com/RelicR/mbuftmprmk/master/mbuffscript.js
 // @description  try to take over the world!
@@ -291,7 +291,6 @@
                     if (!events.pumpkin && pumpkin != undefined) {
                         GM_log("Pumpkin found");
                         events.pumpkin = true;
-                        console.log(document.getElementsByClassName("new-year-bag"));
                         GM_notification({ text: "Pumpkin 💰 found", timeout: 1500 });
                         await setTimeout(getPumpkin, 250);
                     }
