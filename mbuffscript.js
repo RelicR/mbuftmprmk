@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MangaBuffAuto
 // @namespace    http://tampermonkey.net/
-// @version      2024-12-28-v3
+// @version      2024-12-30
 // @updateURL    https://raw.githubusercontent.com/RelicR/mbuftmprmk/master/mbuffscript.js
 // @downloadURL  https://raw.githubusercontent.com/RelicR/mbuftmprmk/master/mbuffscript.js
 // @description  try to take over the world!
@@ -168,7 +168,7 @@
     async function startAutoScroll(){
         scrollBtn.click();
         flags.scroll = true;
-        for(var i = 0; i < 10; i++) {setTimeout(fasterScrollBtn.click(), 500);}
+        for(var i = 0; i < 4; i++) {setTimeout(fasterScrollBtn.click(), 500);}
     }
     async function getCard(){
         flags.card = false;
