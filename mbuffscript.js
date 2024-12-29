@@ -195,7 +195,6 @@
     //
     // Event
     async function getPumpkin(){
-        events.pumpkin = false;
         for (var i = 0; i < 11; i++) {pumpkin.click();}
         await updStats("pumpkin");
         return true;
