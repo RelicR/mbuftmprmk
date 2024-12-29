@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MangaBuffAuto
 // @namespace    http://tampermonkey.net/
-// @version      2024-12-30-v2
+// @version      2024-12-30-v3
 // @updateURL    https://raw.githubusercontent.com/RelicR/mbuftmprmk/master/mbuffscript.js
 // @downloadURL  https://raw.githubusercontent.com/RelicR/mbuftmprmk/master/mbuffscript.js
 // @description  try to take over the world!
@@ -93,14 +93,14 @@
                 // }
                 // stats = {chapter: 0, card: 0, lastCard: null};
                 // Event
-                stats = {chapter: 0, card: 0, lastCard: null, candy: 0, pumpkin: 0, lastCandy: null};
-                await GM.setValues({card: stats.card, chapter: stats.chapter, lastCard: stats.lastCard, candy: stats.candy, pumpkin: stats.pumpkin, lastCandy: stats.lastCandy});
+                stats = {chapter: 0, card: 0, lastCard: null, candy: 0, pumpkin: 0};
+                await GM.setValues({card: stats.card, chapter: stats.chapter, lastCard: stats.lastCard, candy: stats.candy, pumpkin: stats.pumpkin});
                 if (gotCard) {await updStats("card");}
                 console.log("Stats reset");
                 break;
             default:
-                stats = {chapter: 0, card: 0, lastCard: null, candy: 0, pumpkin: 0, lastCandy: null};
-                await GM.setValues({chapter: stats.chapter, card: stats.card, lastCard: stats.lastCard, candy: stats.candy, pumpkin: stats.pumpkin, lastCandy: stats.lastCandy});
+                stats = {chapter: 0, card: 0, lastCard: null, candy: 0, pumpkin: 0};
+                await GM.setValues({chapter: stats.chapter, card: stats.card, lastCard: stats.lastCard, candy: stats.candy, pumpkin: stats.pumpkin});
                 break;
             // case "farm":
             //     stats.chapter = 75;
