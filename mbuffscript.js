@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MangaBuffAuto
 // @namespace    http://tampermonkey.net/
-// @version      2024-12-30
+// @version      2024-12-30-v2
 // @updateURL    https://raw.githubusercontent.com/RelicR/mbuftmprmk/master/mbuffscript.js
 // @downloadURL  https://raw.githubusercontent.com/RelicR/mbuftmprmk/master/mbuffscript.js
 // @description  try to take over the world!
@@ -59,6 +59,7 @@
     // Event
     var candy, pumpkin, candyDiff, candyGap;
     var gotCandy = false;
+    var gotPumpkin = false;
     var events = { candy: false, pumpkin: false };
 
     var heightDiff, curPage, totalPage, pageDiff, timeDiff, gap, dayDiff;
@@ -233,6 +234,7 @@
             for (const mutation of mutationList) {
                 heightDiff = document.body.offsetHeight - W.pageYOffset;
                 if (!flags.next && heightDiff <= windHeight+50){
+                    if (stats.lastCard != null && curDate().getDate() != curDate(stats.lastCard, -3600000).getDate()) await updStats("reset");
                     pageDiff = totalPage - Number(curPage);
                     timeDiff = stats.lastCard != null ? (curDate().getTime() - stats.lastCard)/1000/60 : null;
                     dayDiff = stats.lastCard != null ? curDate().getDate() - curDate(stats.lastCard, -3600000).getDate() : 0;
@@ -266,11 +268,12 @@
                     else {
                         flags.next = true;
                         await setTimeout(goNext, 3000)};
-                    }
+                }
                 if (mutation.type === "childList")
                 {
                     card = document.getElementsByClassName("card-notification")[0];
                     if (!flags.card && card != undefined && card.style.display != "none") {
+                        if (stats.lastCard != null && curDate().getDate() != curDate(stats.lastCard, -3600000).getDate()) await updStats("reset");
                         GM_log("Card found");
                         GM_notification({ text: "Card 🃏 found", timeout: 1500 });
                         flags.card = true;
@@ -282,14 +285,16 @@
                     candy = document.getElementsByClassName("new-year-gift-ball")[0];
                     pumpkin = document.getElementsByClassName("new-year-bag")[0];
                     if (!events.candy && candy != undefined && !candy.classList.contains("new-year-gift-ball--collected")) {
+                        if (stats.lastCard != null && curDate().getDate() != curDate(stats.lastCard, -3600000).getDate()) await updStats("reset");
                         GM_log("Candy found");
                         events.candy = true;
                         GM_notification({ text: "Candy 🍬 found", timeout: 1500 });
                         await setTimeout(getCandy, 1500);
                     }
                     if (!events.pumpkin && pumpkin != undefined) {
-                        GM_log("Pumpkin found");
+                        if (stats.lastCard != null && curDate().getDate() != curDate(stats.lastCard, -3600000).getDate()) await updStats("reset");
                         events.pumpkin = true;
+                        GM_log("Pumpkin found");
                         GM_notification({ text: "Pumpkin 💰 found", timeout: 1500 });
                         await setTimeout(getPumpkin, 250);
                     }
