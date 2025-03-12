@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MangaBuffAuto
 // @namespace    http://tampermonkey.net/
-// @version      2025-03-07
+// @version      2025-03-13
 // @updateURL    https://raw.githubusercontent.com/RelicR/mbuftmprmk/master/mbuffscript.js
 // @downloadURL  https://raw.githubusercontent.com/RelicR/mbuftmprmk/master/mbuffscript.js
 // @description  try to take over the world!
@@ -117,8 +117,8 @@
         }
     }
     async function getStats(){
-        //return GM.getValues({chapter: 0, card: 0, lastCard: null, candy: 0, pumpkin: 0, lastCandy: null});
-        return GM.getValues({chapter: 0, card: 0, lastCard: null});
+        return GM.getValues({chapter: 0, card: 0, lastCard: null, candy: 0, pumpkin: 0, lastCandy: null});
+        //return GM.getValues({chapter: 0, card: 0, lastCard: null});
     }
     async function showStats(){
         console.log("Stats are ");
@@ -161,7 +161,7 @@
     async function startAutoScroll(){
         scrollBtn.click();
         flags.scroll = true;
-        for(var i = 0; i < 6; i++) {setTimeout(fasterScrollBtn.click(), 500);}
+        for(var i = 0; i < 10; i++) {setTimeout(fasterScrollBtn.click(), 500);}
     }
     async function getCard(){
         flags.card = false;
@@ -176,11 +176,22 @@
         return cardModal.click();
     }
     async function goNext(){
+        // if (document.body.offsetHeight < windHeight*3)
+        // {
+        //     await sleep(10000);
+        //     flags.next = false;
+        //     return false;
+        // }
         if(heightDiff <= windHeight+75){
             if (stats.lastCard != null && curDate().getDate() != curDate(stats.lastCard, -3600000).getDate()) await updStats("reset");
             await updStats("chapter");
             flags.next = false;
             return nextCh.click();
+        }
+        else if (flags.scroll && scrollBtn.classList.contains("icon-play"))
+        {
+            startAutoScroll();
+            flags.next = false;
         }
         else flags.next = false;
         return false;
@@ -236,6 +247,10 @@
                     if ((setup.full || setup.farm) && stats.card >= 10) {
                         await updConfig(false, true, false, false, false);
                         console.log("Stopped by condition");
+                    }
+                    else if (setup.event && stats.candy >= 40) {
+                        await updConfig(true, false, false, false, false);
+                        console.log("Stopped by condition | EVENT");
                     }
                     else if ((gotCard || (timeDiff != null && timeDiff < 60)) && dayDiff == 0 && ((setup.full && stats.chapter > 75) || setup.farm) && stats.card < 10) {
                         gap = gotCard ? 3600000 : (60-timeDiff)*60*1000;
