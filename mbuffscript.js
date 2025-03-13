@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MangaBuffAuto
 // @namespace    http://tampermonkey.net/
-// @version      2025-03-13
+// @version      2025-03-13v2
 // @updateURL    https://raw.githubusercontent.com/RelicR/mbuftmprmk/master/mbuffscript.js
 // @downloadURL  https://raw.githubusercontent.com/RelicR/mbuftmprmk/master/mbuffscript.js
 // @description  try to take over the world!
@@ -257,7 +257,7 @@
                         console.log("Candy in " + candyGap);
                         flags.next = true;
                         console.log(timeDiff);
-                        if (gap > candyGap) {
+                        if (gap > candyGap && stats.candy < 40) {
                             console.log("Waiting for candy");
                             await sleep(candyGap).then(() => setTimeout(goNext, 1000));
                         }
