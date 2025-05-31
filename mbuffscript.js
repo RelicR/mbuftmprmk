@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MangaBuffAuto
 // @namespace    http://tampermonkey.net/
-// @version      2025-05-31
+// @version      2025-05-31 v2
 // @updateURL    https://raw.githubusercontent.com/RelicR/mbuftmprmk/master/mbuffscript.js
 // @downloadURL  https://raw.githubusercontent.com/RelicR/mbuftmprmk/master/mbuffscript.js
 // @description  try to take over the world!
@@ -285,7 +285,7 @@
                         console.log("Stopped by condition");
                         return false;
                     }
-                    else if (setup.event && (stats.candy - (2*stats.pumpkin)) >= 40) {
+                    else if (setup.event && (stats.candy - (2*stats.pumpkin)) >= 50) {
                         await updConfig(true, false, false, false, false);
                         console.log("Stopped by condition | EVENT");
                         return false;
@@ -294,30 +294,20 @@
                         gap = gotCard ? 3600000 : (60-timeDiff)*60*1000;
                         flags.next = true;
                         console.log(timeDiff);
-                        console.log("Waiting for card");
-                        await sleep(gap).then(() => setTimeout(goNext, 1000));
+                        // console.log("Waiting for card");
+                        // await sleep(gap).then(() => setTimeout(goNext, 1000));
                         // Event
                         if (__event) {
                             console.log("Candy in " + candyGap);
-                            if (gap > candyGap && stats.candy < 40) {
+                            if (gap > candyGap && stats.candy < 50) {
                                 console.log("Waiting for candy");
                                 await sleep(candyGap).then(() => setTimeout(goNext, 1000));
                             }
-                            else {
-                                console.log("Waiting for card");
-                                await sleep(gap).then(() => setTimeout(goNext, 1000));
-                            }
                         }
-                        // console.log("Candy in " + candyGap);
-                        // if (gap > candyGap && stats.candy < 40) {
-                        //     console.log("Waiting for candy");
-                        //     await sleep(candyGap).then(() => setTimeout(goNext, 1000));
-                        // }
-                        // else {
-                        //     console.log("Waiting for card");
-                        //     await sleep(gap).then(() => setTimeout(goNext, 1000));
-                        // }
-                        // ---
+                        else {
+                            console.log("Waiting for card");
+                            await sleep(gap).then(() => setTimeout(goNext, 1000));
+                        }
                     }
                     // Event
                     else if (setup.event && __event) {
@@ -329,7 +319,8 @@
                     // ---
                     else {
                         flags.next = true;
-                        await setTimeout(goNext, 3000)};
+                        await setTimeout(goNext, 3000)
+                    };
                 }
                 if (mutation.type === "childList")
                 {
