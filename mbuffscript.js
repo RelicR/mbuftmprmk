@@ -274,7 +274,7 @@
                     timeDiff = stats.lastCard != null ? (curDate().getTime() - stats.lastCard)/1000/60 : null;
                     dayDiff = stats.lastCard != null ? curDate().getDate() - curDate(stats.lastCard, -3600000).getDate() : 0;
                     // Event
-                    if (setup.event) {
+                    if (__event) {
                         candyDiff = stats.lastCandy != null ? (curDate().getTime() - stats.lastCandy)/1000/60 : 10;
                         candyGap = (10-candyDiff)*60*1000;
                     }
