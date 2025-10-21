@@ -299,7 +299,7 @@
                         // Event
                         if (__event) {
                             console.log("Candy in " + candyGap);
-                            if (gap > candyGap && stats.candy < 50) {
+                            if (gap > candyGap && stats.candy < 60) {
                                 console.log("Waiting for candy");
                                 await sleep(candyGap).then(() => setTimeout(goNext, 1000));
                             }
