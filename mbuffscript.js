@@ -275,8 +275,8 @@
                     dayDiff = stats.lastCard != null ? curDate().getDate() - curDate(stats.lastCard, -3600000).getDate() : 0;
                     // Event
                     if (__event) {
-                        candyDiff = stats.lastCandy != null ? (curDate().getTime() - stats.lastCandy)/1000/60 : 10;
-                        candyGap = (10-candyDiff)*60*1000;
+                        candyDiff = stats.lastCandy != null ? (curDate().getTime() - stats.lastCandy)/1000/60 : 6;
+                        candyGap = (6-candyDiff)*60*1000;
                     }
                     // ---
                     console.log(`TIMEDIF ${timeDiff}, DAYDIF ${dayDiff}`);
@@ -285,7 +285,7 @@
                         console.log("Stopped by condition");
                         return false;
                     }
-                    else if (setup.event && (stats.candy - (2*stats.pumpkin)) >= 50) {
+                    else if (setup.event && (stats.candy - (2*stats.pumpkin)) >= 60) {
                         await updConfig(true, false, false, false, false);
                         console.log("Stopped by condition | EVENT");
                         return false;
